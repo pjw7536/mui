@@ -22,6 +22,9 @@ export function createColumnDefs(columns) {
     id: colKey,
     header: () => colKey,
     accessorFn: (row) => row[colKey],
+    meta: {
+      isEditable: colKey === "comment" || colKey === "needtosend",
+    },
     cell: (info) => {
       const meta = info.table.options.meta
 
@@ -77,6 +80,9 @@ export function createColumnDefs(columns) {
       accessorFn: (row) => row["main_step"] ?? row["metro_steps"] ?? null,
       cell: (info) => renderMetroStepFlow(info.row.original),
       enableSorting: false,
+      meta: {
+        isEditable: false,
+      },
     }
     defs.splice(Math.min(Math.max(insertionIndex, 0), defs.length), 0, stepColumnDef)
   }
