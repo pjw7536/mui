@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography"
 
 import { getDistinctLineIds } from "@/features/line-dashboard/api"
 
-export async function AppSidebar({ currentLine }) {
+export async function AppSidebar({ currentLine, activeSection = "dashboard" }) {
   const lineIds = await getDistinctLineIds()
 
   return (
@@ -42,10 +42,21 @@ export async function AppSidebar({ currentLine }) {
             const dashboardHref = `/${encodeURIComponent(lineId)}/dashboard`
             const analyticsHref = `/${encodeURIComponent(lineId)}/analytics`
             const isCurrentLine = currentLine === lineId
+            const isDashboardActive = isCurrentLine && activeSection === "dashboard"
+            const isAnalyticsActive = isCurrentLine && activeSection === "analytics"
 
             return (
-              <Box key={lineId} className="mb-2 rounded-lg border border-transparent">
-                <ListItemButton component="a" href={dashboardHref} selected={isCurrentLine} className="rounded-lg">
+              <Box
+                key={lineId}
+                className="mb-2 rounded-lg border border-transparent"
+                data-current-line={isCurrentLine ? "true" : undefined}
+              >
+                <ListItemButton
+                  component="a"
+                  href={dashboardHref}
+                  selected={isCurrentLine}
+                  className="rounded-lg"
+                >
                   <ListItemText
                     primary={
                       <span className="text-sm font-medium">
@@ -56,14 +67,28 @@ export async function AppSidebar({ currentLine }) {
                     secondary={<span className="text-xs text-muted-foreground">Dashboard overview</span>}
                   />
                 </ListItemButton>
-                <List component="div" disablePadding className="pl-4">
-                  <ListItemButton component="a" href={dashboardHref} dense className="rounded-lg text-sm">
-                    <ListItemText primary="Dashboard" />
-                  </ListItemButton>
-                  <ListItemButton component="a" href={analyticsHref} dense className="rounded-lg text-sm">
-                    <ListItemText primary="Analytics" />
-                  </ListItemButton>
-                </List>
+                {isCurrentLine ? (
+                  <List component="div" disablePadding className="pl-4">
+                    <ListItemButton
+                      component="a"
+                      href={dashboardHref}
+                      dense
+                      className="rounded-lg text-sm"
+                      selected={isDashboardActive}
+                    >
+                      <ListItemText primary="Dashboard" />
+                    </ListItemButton>
+                    <ListItemButton
+                      component="a"
+                      href={analyticsHref}
+                      dense
+                      className="rounded-lg text-sm"
+                      selected={isAnalyticsActive}
+                    >
+                      <ListItemText primary="Analytics" />
+                    </ListItemButton>
+                  </List>
+                ) : null}
               </Box>
             )
           })}

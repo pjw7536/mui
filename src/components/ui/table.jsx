@@ -10,12 +10,12 @@ import MuiTableRow from "@mui/material/TableRow"
 
 import { cn } from "@/lib/utils"
 
-export const Table = React.forwardRef(function Table({ className, stickyHeader = false, ...props }, ref) {
-  return (
-    <MuiTableContainer className={cn(className)}>
-      <MuiTable ref={ref} stickyHeader={stickyHeader} size="small" {...props} />
-    </MuiTableContainer>
-  )
+export const TableContainer = React.forwardRef(function TableContainer({ className, ...props }, ref) {
+  return <MuiTableContainer ref={ref} className={cn(className)} {...props} />
+})
+
+export const Table = React.forwardRef(function Table({ className, stickyHeader = false, size = "small", ...props }, ref) {
+  return <MuiTable ref={ref} stickyHeader={stickyHeader} size={size} className={cn("w-full", className)} {...props} />
 })
 
 export const TableHeader = React.forwardRef(function TableHeader({ className, ...props }, ref) {

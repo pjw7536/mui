@@ -28,7 +28,7 @@ export default async function LineDashboardPage({ params }) {
         "--header-height": "calc(var(--spacing) * 12)",
       }}
     >
-      <AppSidebar variant="inset" currentLine={dashboard.lineId} />
+      <AppSidebar variant="inset" currentLine={dashboard.lineId} activeSection="analytics" />
       <SidebarInset>
         <SiteHeader lineId={dashboard.lineId} lastUpdatedAt={dashboard.summary.latestUpdatedAt} />
         <div className="flex flex-1 flex-col">
