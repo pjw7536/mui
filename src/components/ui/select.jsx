@@ -1,10 +1,6 @@
 "use client"
 
 import React from "react"
-import FormControl from "@mui/material/FormControl"
-import InputLabel from "@mui/material/InputLabel"
-import MenuItem from "@mui/material/MenuItem"
-import MuiSelect from "@mui/material/Select"
 
 import { cn } from "@/lib/utils"
 
@@ -12,10 +8,16 @@ function isComponentOfType(element, displayName) {
   return React.isValidElement(element) && element.type?.displayName === displayName
 }
 
+const SIZE_MAP = {
+  sm: "h-8 px-3 text-sm",
+  md: "h-9 px-4 text-sm",
+  lg: "h-10 px-4 text-base",
+}
+
 export function Select({ value, defaultValue, onValueChange, label, disabled = false, children }) {
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? "")
   const isControlled = value !== undefined
-  const actualValue = isControlled ? value : internalValue
+  const actualValue = isControlled ? value ?? "" : internalValue
 
   const { triggerProps, placeholder, items } = React.useMemo(() => {
     const nextTriggerProps = {}
@@ -43,14 +45,7 @@ export function Select({ value, defaultValue, onValueChange, label, disabled = f
     return { triggerProps: nextTriggerProps, placeholder: nextPlaceholder, items: nextItems }
   }, [children])
 
-  const sizeProp =
-    triggerProps.size === "sm"
-      ? "small"
-      : triggerProps.size === "lg"
-        ? "medium"
-        : triggerProps.size === "md"
-          ? "medium"
-          : "small"
+  const sizeClasses = SIZE_MAP[triggerProps.size] ?? SIZE_MAP.sm
   const labelId = label ? `${label.toLowerCase().replace(/\s+/g, "-")}-label` : undefined
 
   const handleChange = React.useCallback(
@@ -64,41 +59,57 @@ export function Select({ value, defaultValue, onValueChange, label, disabled = f
     [isControlled, onValueChange]
   )
 
-  const renderValue = (selected) => {
-    if (selected === "" || selected === null || selected === undefined) {
-      return placeholder || "Select…"
-    }
-    const match = items.find((item) => item.props.value === selected)
-    return match?.props?.children ?? selected
-  }
+  const hasValue = actualValue !== "" && actualValue !== null && actualValue !== undefined
+
+  const selectElement = (
+    <select
+      id={triggerProps.id}
+      aria-label={triggerProps["aria-label"]}
+      aria-labelledby={labelId}
+      className={cn(
+        "w-full appearance-none rounded-lg border border-input bg-background text-left text-sm shadow-sm transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+        sizeClasses,
+        triggerProps.className
+      )}
+      value={actualValue}
+      onChange={handleChange}
+      disabled={disabled}
+    >
+      <option value="" disabled={placeholder !== ""}>
+        {placeholder || "Select…"}
+      </option>
+      {items.map((item) => (
+        <option key={item.props.value} value={item.props.value} disabled={item.props.disabled}>
+          {item.props.children}
+        </option>
+      ))}
+    </select>
+  )
 
   return (
-    <FormControl
-      size={sizeProp}
-      disabled={disabled}
-      className={cn("min-w-[10rem]", triggerProps.className)}
-    >
-      {label ? <InputLabel id={labelId}>{label}</InputLabel> : null}
-      <MuiSelect
-        labelId={labelId}
-        value={actualValue}
-        displayEmpty
-        onChange={handleChange}
-        renderValue={renderValue}
-        aria-label={triggerProps["aria-label"]}
-      >
-        {placeholder ? (
-          <MenuItem value="" disabled>
+    <div className={cn("relative flex min-w-[10rem] flex-col", triggerProps.wrapperClassName)}>
+      {label ? (
+        <label htmlFor={triggerProps.id} id={labelId} className="mb-1 text-xs font-medium text-muted-foreground">
+          {label}
+        </label>
+      ) : null}
+      <div className="relative w-full">
+        {selectElement}
+        {!hasValue && placeholder ? (
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {placeholder}
-          </MenuItem>
+          </span>
         ) : null}
-        {items.map((item) =>
-          React.cloneElement(item, {
-            key: item.props.value,
-          })
-        )}
-      </MuiSelect>
-    </FormControl>
+        <svg
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    </div>
   )
 }
 Select.displayName = "Select"
@@ -113,12 +124,8 @@ export function SelectContent({ children }) {
 }
 SelectContent.displayName = "SelectContent"
 
-export function SelectItem({ value, children, className, ...props }) {
-  return (
-    <MenuItem value={value} className={cn(className)} {...props}>
-      {children}
-    </MenuItem>
-  )
+export function SelectItem({ value, children, disabled }) {
+  return <option value={value} disabled={disabled}>{children}</option>
 }
 SelectItem.displayName = "SelectItem"
 

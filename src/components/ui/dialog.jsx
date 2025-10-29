@@ -1,11 +1,7 @@
 "use client"
 
 import React from "react"
-import MuiDialog from "@mui/material/Dialog"
-import MuiDialogActions from "@mui/material/DialogActions"
-import MuiDialogContent from "@mui/material/DialogContent"
-import MuiDialogTitle from "@mui/material/DialogTitle"
-import Box from "@mui/material/Box"
+import { createPortal } from "react-dom"
 
 import { cn } from "@/lib/utils"
 
@@ -50,6 +46,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   if (asChild && React.isValidElement(children)) {
     return React.cloneElement(children, {
+      ...props,
       onClick: (event) => {
         children.props.onClick?.(event)
         onClick?.(event)
@@ -77,42 +74,102 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   )
 })
 
+const MAX_WIDTH_MAP = {
+  xs: "max-w-xs",
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+}
+
 export const DialogContent = React.forwardRef(function DialogContent(
   { className, maxWidth = "sm", children, ...props },
   ref
 ) {
   const { open, setOpen } = useDialogContext()
+  const contentRef = React.useRef(null)
+  const combinedRef = React.useCallback(
+    (node) => {
+      contentRef.current = node
+      if (typeof ref === "function") {
+        ref(node)
+      } else if (ref) {
+        ref.current = node
+      }
+    },
+    [ref]
+  )
 
-  return (
-    <MuiDialog
-      ref={ref}
-      open={open}
-      onClose={() => setOpen(false)}
-      maxWidth={maxWidth}
-      fullWidth
-      {...props}
-    >
-      <MuiDialogContent dividers className={cn("flex flex-col gap-3", className)}>
+  React.useEffect(() => {
+    if (!open) return
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault()
+        setOpen(false)
+      }
+    }
+
+    const previouslyFocused = document.activeElement
+
+    const timer = window.setTimeout(() => {
+      contentRef.current?.focus({ preventScroll: true })
+    }, 0)
+
+    document.addEventListener("keydown", handleKeyDown)
+    document.body.classList.add("overflow-hidden")
+
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener("keydown", handleKeyDown)
+      document.body.classList.remove("overflow-hidden")
+      if (previouslyFocused instanceof HTMLElement) {
+        previouslyFocused.focus({ preventScroll: true })
+      }
+    }
+  }, [open, setOpen])
+
+  if (!open) {
+    return null
+  }
+
+  const maxWidthClass = MAX_WIDTH_MAP[maxWidth] ?? MAX_WIDTH_MAP.sm
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="fixed inset-0 bg-black/50"
+        onClick={() => {
+          setOpen(false)
+        }}
+      />
+      <div
+        ref={combinedRef}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
+        className={cn(
+          "relative z-10 w-full rounded-2xl border border-border bg-background p-6 shadow-xl outline-none",
+          maxWidthClass,
+          className
+        )}
+        {...props}
+      >
         {children}
-      </MuiDialogContent>
-    </MuiDialog>
+      </div>
+    </div>,
+    document.body
   )
 })
 
 export const DialogHeader = React.forwardRef(function DialogHeader({ className, ...props }, ref) {
-  return <Box ref={ref} className={cn("flex flex-col gap-1", className)} {...props} />
+  return <div ref={ref} className={cn("flex flex-col gap-1", className)} {...props} />
 })
 
 export const DialogTitle = React.forwardRef(function DialogTitle({ className, ...props }, ref) {
-  return <MuiDialogTitle ref={ref} className={cn("text-lg font-semibold", className)} {...props} />
+  return <h2 ref={ref} className={cn("text-lg font-semibold", className)} {...props} />
 })
 
 export const DialogFooter = React.forwardRef(function DialogFooter({ className, ...props }, ref) {
-  return (
-    <MuiDialogActions
-      ref={ref}
-      className={cn("flex flex-wrap justify-end gap-2 pt-4", className)}
-      {...props}
-    />
-  )
+  return <div ref={ref} className={cn("flex flex-wrap justify-end gap-2 pt-4", className)} {...props} />
 })

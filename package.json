@@ -9,11 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.13.5",
-    "@mui/icons-material": "^6.1.10",
-    "@mui/material": "^6.1.10",
-    "@mui/material-nextjs": "^6.1.10",
     "@tabler/icons-react": "^3.27.0",
     "@tanstack/react-table": "^8.20.8",
     "clsx": "^2.1.1",

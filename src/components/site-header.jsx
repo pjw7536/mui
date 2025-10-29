@@ -1,9 +1,4 @@
 import Link from "next/link"
-import Box from "@mui/material/Box"
-import Breadcrumbs from "@mui/material/Breadcrumbs"
-import Stack from "@mui/material/Stack"
-import Typography from "@mui/material/Typography"
-
 function formatUpdatedAt(input) {
   if (!input) return "No recent updates"
   const date = new Date(input)
@@ -25,23 +20,24 @@ export function SiteHeader({ lineId, lastUpdatedAt }) {
       className="flex h-[var(--header-height,80px)] items-center justify-between border-b border-border bg-background px-6"
       role="banner"
     >
-      <Stack spacing={1}>
-        <Breadcrumbs separator="›" aria-label="breadcrumb" className="text-xs text-muted-foreground">
-          <Link href="/" className="text-muted-foreground hover:text-foreground">
-            Home
-          </Link>
-          <Typography component="span" className="text-muted-foreground">
-            Line {lineId}
-          </Typography>
-        </Breadcrumbs>
-        <Typography variant="h5" className="font-semibold">
-          Production line {lineId}
-        </Typography>
-        <Typography variant="body2" className="text-sm text-muted-foreground">
-          Last updated {updatedLabel}
-        </Typography>
-      </Stack>
-      <Box className="hidden gap-2 md:flex">
+      <div className="flex flex-col gap-1">
+        <nav aria-label="breadcrumb">
+          <ol className="flex items-center gap-2 text-xs text-muted-foreground">
+            <li>
+              <Link href="/" className="text-muted-foreground transition-colors hover:text-foreground">
+                Home
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-muted-foreground">
+              ›
+            </li>
+            <li className="text-muted-foreground">Line {lineId}</li>
+          </ol>
+        </nav>
+        <h1 className="text-lg font-semibold leading-tight md:text-xl">Production line {lineId}</h1>
+        <p className="text-sm text-muted-foreground">Last updated {updatedLabel}</p>
+      </div>
+      <div className="hidden items-center gap-2 md:flex">
         <Link
           href={`/${encodeURIComponent(lineId)}/dashboard`}
           className="text-sm font-medium text-primary hover:underline"
@@ -54,7 +50,7 @@ export function SiteHeader({ lineId, lastUpdatedAt }) {
         >
           Analytics
         </Link>
-      </Box>
+      </div>
     </header>
   )
 }

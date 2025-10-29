@@ -1,8 +1,6 @@
 "use client"
 
 import React from "react"
-import Paper from "@mui/material/Paper"
-import Typography from "@mui/material/Typography"
 import { Tooltip as RechartsTooltip } from "recharts"
 
 import { cn } from "@/lib/utils"
@@ -53,11 +51,14 @@ export function ChartTooltipContent({
   const computedLabel = labelFormatter ? labelFormatter(label) : label
 
   return (
-    <Paper elevation={2} className={cn("min-w-[160px] p-3", className)}>
-      <Typography variant="subtitle2" className="mb-2">
-        {computedLabel}
-      </Typography>
-      <div className="flex flex-col gap-1">
+    <div
+      className={cn(
+        "min-w-[160px] rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg",
+        className
+      )}
+    >
+      <p className="mb-2 text-sm font-semibold">{computedLabel}</p>
+      <div className="flex flex-col gap-1 text-sm">
         {payload.map((entry) => {
           const formatted = formatter
             ? formatter(entry.value, entry.name, entry)
@@ -65,7 +66,7 @@ export function ChartTooltipContent({
           const valueLabel = Array.isArray(formatted) ? formatted[0] : entry.value
           const nameLabel = Array.isArray(formatted) ? formatted[1] : entry.name
           return (
-            <div key={entry.dataKey ?? entry.name} className="flex items-center gap-2 text-sm">
+            <div key={entry.dataKey ?? entry.name} className="flex items-center gap-2">
               <span
                 className="h-2.5 w-2.5 rounded-sm"
                 style={{ backgroundColor: entry.color ?? "var(--primary)" }}
@@ -76,6 +77,6 @@ export function ChartTooltipContent({
           )
         })}
       </div>
-    </Paper>
+    </div>
   )
 }

@@ -1,47 +1,52 @@
 "use client"
 
 import React from "react"
-import MuiTable from "@mui/material/Table"
-import MuiTableBody from "@mui/material/TableBody"
-import MuiTableCell from "@mui/material/TableCell"
-import MuiTableContainer from "@mui/material/TableContainer"
-import MuiTableHead from "@mui/material/TableHead"
-import MuiTableRow from "@mui/material/TableRow"
 
 import { cn } from "@/lib/utils"
 
 export const TableContainer = React.forwardRef(function TableContainer({ className, ...props }, ref) {
-  return <MuiTableContainer ref={ref} className={cn(className)} {...props} />
+  return <div ref={ref} className={cn("w-full overflow-auto", className)} {...props} />
 })
 
-export const Table = React.forwardRef(function Table({ className, stickyHeader = false, size = "small", ...props }, ref) {
-  return <MuiTable ref={ref} stickyHeader={stickyHeader} size={size} className={cn("w-full", className)} {...props} />
+export const Table = React.forwardRef(function Table({ className, stickyHeader = false, ...props }, ref) {
+  return (
+    <table
+      ref={ref}
+      className={cn("w-full border-collapse text-sm", stickyHeader ? "[--table-sticky:true]" : undefined, className)}
+      {...props}
+    />
+  )
 })
 
 export const TableHeader = React.forwardRef(function TableHeader({ className, ...props }, ref) {
-  return <MuiTableHead ref={ref} className={cn(className)} {...props} />
+  return <thead ref={ref} className={cn(className)} {...props} />
 })
 
 export const TableBody = React.forwardRef(function TableBody({ className, ...props }, ref) {
-  return <MuiTableBody ref={ref} className={cn(className)} {...props} />
+  return <tbody ref={ref} className={cn(className)} {...props} />
 })
 
 export const TableRow = React.forwardRef(function TableRow({ className, hover = true, ...props }, ref) {
-  return <MuiTableRow ref={ref} hover={hover} className={cn(className)} {...props} />
+  return (
+    <tr
+      ref={ref}
+      className={cn(hover ? "transition-colors hover:bg-muted/40" : undefined, className)}
+      {...props}
+    />
+  )
 })
 
 export const TableHead = React.forwardRef(function TableHead({ className, ...props }, ref) {
   return (
-    <MuiTableCell
+    <th
       ref={ref}
-      component="th"
       scope="col"
-      className={cn("font-semibold", className)}
+      className={cn("whitespace-nowrap border-b border-border bg-muted/30 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground", className)}
       {...props}
     />
   )
 })
 
 export const TableCell = React.forwardRef(function TableCell({ className, ...props }, ref) {
-  return <MuiTableCell ref={ref} className={cn(className)} {...props} />
+  return <td ref={ref} className={cn("border-b border-border px-4 py-3", className)} {...props} />
 })
